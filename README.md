@@ -1,23 +1,127 @@
-# Level 2 Top-Down Template (Work in Progress)
+﻿# Level 2 Top-Down Template
 
-This project is a **starter template** for Level 2 World Building.
+Beginner-friendly top-down game template for Level 2 World Building.
 
-## What this will become
-A simple top-down browser project where you can:
-- insert your own map graphics
-- insert your own character graphics
-- present your game universe in a responsive layout
-- add simple interactions (like triggers, modal content, and sounds)
+## Implemented Status
 
-## Tech
-- HTML
-- CSS
-- JavaScript (vanilla)
+- [x] Tile-based movement on a 32x32 grid
+- [x] Smooth movement with exact grid snapping
+- [x] No diagonal movement
+- [x] Camera follows player and clamps to map bounds
+- [x] Configurable camera size and map size
+- [x] Integer-only pixel scaling (no smoothing)
+- [x] Solid tile collision from config list
+- [x] Trigger system (`onEnterCell`, `onInteractCell`)
+- [x] Trigger actions (`playSound`, `openModalText`, `openModalVideo`, `openModalHtml`, `teleport`)
+- [x] Reusable modal with ESC and close button
+- [x] Basic sound system with graceful warnings
+- [x] Sprite sheet support for up/down/left/right (single frame or multi-frame)
 
-No frameworks.
+## Run Locally
 
-## Status
-🚧 This template is **currently being built**.
+Use a local web server (not `file://`).
 
-Right now, this README only describes the concept and plan.
-It will be updated with setup instructions, file structure, and usage examples as development progresses.
+Example options:
+
+```bash
+python -m http.server 4173
+```
+
+Then open `http://127.0.0.1:4173`.
+
+## Controls
+
+- Move: Arrow keys or WASD
+- Interact: Space or Enter
+- Close modal: Escape
+
+## Main Files
+
+- `index.html`
+- `css/variables.css`
+- `css/style.css`
+- `js/config.js` (main student editing file)
+- `js/game.js`
+- `js/triggers.js`
+- `js/modal.js`
+- `js/audio.js`
+- `content/modals.js`
+
+## Edit Gameplay Without Engine Changes
+
+Most edits should be in `js/config.js`:
+
+- `map.widthTiles`, `map.heightTiles`
+- `camera.widthPx`, `camera.heightPx`
+- `player.startTile`
+- `player.directions` (sprite sheet rows and frame counts)
+- `solidTiles`
+- `triggers`
+- `audioEvents` and `sounds`
+
+## Add Your First Trigger
+
+1. Open `js/config.js`.
+2. Find `triggers: [...]`.
+3. Add a new trigger object:
+
+```js
+{
+    id: "my_first_trigger",
+    type: "onEnterCell",
+    x: 5,
+    y: 4,
+    once: true,
+    action: {
+        kind: "openModalText",
+        title: "Hello",
+        text: "You stepped on tile (5,4)."
+    }
+}
+```
+
+4. Save and refresh the browser.
+
+For interact triggers, use `type: "onInteractCell"`. The player must face the target tile and press Space or Enter.
+
+## Replace Assets
+
+### Map
+
+1. Replace `assets/map/map.png`.
+2. Keep tile size logic at 32x32.
+3. Make sure map image dimensions match:
+   - width = `map.widthTiles * tileSize`
+   - height = `map.heightTiles * tileSize`
+
+If dimensions do not match, startup fails with a clear error.
+
+### Player sprite sheet
+
+1. Replace `assets/player/player_sheet.png`.
+2. Sheet uses direction rows in `js/config.js`:
+   - `up`, `down`, `left`, `right`
+3. Each frame is `32x32` by default.
+4. Keep `frames: 1` for no animation, or set larger values for multi-frame movement.
+
+### Sound and video
+
+- Replace files in `assets/sfx/` and `assets/video/`.
+- Keep paths aligned with `js/config.js` and `content/modals.js`.
+
+## Trigger Notes
+
+- Multiple triggers on the same tile/event run in array order.
+- `once: true` triggers are consumed after successful execution.
+- Unknown/invalid triggers are skipped with warnings.
+
+## Collision Notes
+
+- `solidTiles` is a simple coordinate list in `js/config.js`.
+- The player cannot move into solid tiles.
+- Map bounds are always non-walkable.
+
+## Known Constraints
+
+- Integer-only scaling is used to preserve crisp pixels.
+- If the screen is smaller than the camera at 1x scale, the stage can overflow and scroll.
