@@ -49,11 +49,14 @@ export const GAME_CONFIG = {
         ui_open_modal: "assets/sfx/interact.wav"
     },
 
-    // Simple coordinate list for non-walkable cells.
+    // Non-walkable cells.
+    // Use either:
+    // - Single tile: { x: 10, y: 4 }
+    // - Filled range (line or rectangle): { x1: 8, y1: 4, x2: 12, y2: 4 }
     solidTiles: [
         { x: 8, y: 2 }, { x: 12, y: 2 },
         { x: 9, y: 3 }, { x: 10, y: 3 }, { x: 11, y: 3 },
-        { x: 8, y: 4 }, { x: 9, y: 4 }, { x: 10, y: 4 }, { x: 11, y: 4 }, { x: 12, y: 4 },
+        { x1: 8, y1: 4, x2: 12, y2: 4 },
     ],
 
     triggers: [

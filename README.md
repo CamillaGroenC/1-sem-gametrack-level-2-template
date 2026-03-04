@@ -117,7 +117,9 @@ If dimensions do not match, startup fails with a clear error.
 
 ## Collision Notes
 
-- `solidTiles` is a simple coordinate list in `js/config.js`.
+- `solidTiles` supports both:
+  - Single tile entries: `{ x: 10, y: 4 }`
+  - Filled range entries (line or rectangle): `{ x1: 8, y1: 4, x2: 12, y2: 4 }`
 - The player cannot move into solid tiles.
 - Map bounds are always non-walkable.
 

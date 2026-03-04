@@ -225,13 +225,52 @@ function buildSolidTileSet() {
     }
 
     for (const tile of GAME_CONFIG.solidTiles) {
-        if (!tile || !Number.isInteger(tile.x) || !Number.isInteger(tile.y)) {
-            console.warn("[config] Invalid solid tile entry was skipped.", tile);
+        if (isSolidPointEntry(tile)) {
+            addSolidTile(tile.x, tile.y);
             continue;
         }
 
-        state.solidTileSet.add(tileKey(tile.x, tile.y));
+        if (isSolidRangeEntry(tile)) {
+            addSolidTileRange(tile);
+            continue;
+        }
+
+        console.warn("[config] Invalid solid tile entry was skipped.", tile);
     }
+}
+
+function isSolidPointEntry(tile) {
+    return Boolean(tile) && Number.isInteger(tile.x) && Number.isInteger(tile.y);
+}
+
+function isSolidRangeEntry(tile) {
+    return Boolean(tile) &&
+        Number.isInteger(tile.x1) &&
+        Number.isInteger(tile.y1) &&
+        Number.isInteger(tile.x2) &&
+        Number.isInteger(tile.y2);
+}
+
+function addSolidTileRange(tile) {
+    const minX = Math.min(tile.x1, tile.x2);
+    const maxX = Math.max(tile.x1, tile.x2);
+    const minY = Math.min(tile.y1, tile.y2);
+    const maxY = Math.max(tile.y1, tile.y2);
+
+    for (let y = minY; y <= maxY; y += 1) {
+        for (let x = minX; x <= maxX; x += 1) {
+            addSolidTile(x, y);
+        }
+    }
+}
+
+function addSolidTile(tileX, tileY) {
+    if (!isInsideMap(tileX, tileY)) {
+        console.warn(`[config] solid tile (${tileX}, ${tileY}) is outside map bounds and was skipped.`);
+        return;
+    }
+
+    state.solidTileSet.add(tileKey(tileX, tileY));
 }
 
 function applyViewportSize() {

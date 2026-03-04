@@ -4,7 +4,7 @@
         html: `
             <p><strong>Welcome to the teaching map.</strong></p>
             <p>Brown tiles are marked as solid in <code>js/config.js</code>.</p>
-            <p>Try walking near the portal around tile (30, 9).</p>
+            <p>Try walking through the portal.</p>
         `
     },
     intro_clip: {
