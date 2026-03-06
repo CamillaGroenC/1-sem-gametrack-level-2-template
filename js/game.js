@@ -23,6 +23,7 @@ const KEY_TO_DIRECTION = {
 };
 
 const INTERACT_KEYS = new Set(["Space", "Enter", "NumpadEnter"]);
+const TURN_DELAY_MS = 120;
 
 const refs = {
     gameStage: document.querySelector(".game-stage"),
@@ -44,6 +45,8 @@ const refs = {
 const state = {
     activeDirections: [],
     queuedDirection: null,
+    turnLockDirection: null,
+    turnLockUntil: 0,
     lastFrameTime: 0,
     currentScale: 1,
     cameraX: 0,
@@ -544,13 +547,13 @@ function gameLoop(now) {
     const deltaMs = Math.min(50, now - state.lastFrameTime);
     state.lastFrameTime = now;
 
-    update(deltaMs);
+    update(deltaMs, now);
     render(now);
 
     requestAnimationFrame(gameLoop);
 }
 
-function update(deltaMs) {
+function update(deltaMs, now) {
     runDeferredEnterTrigger();
 
     if (!state.modal.isOpen() && !state.isTeleporting) {
@@ -558,7 +561,7 @@ function update(deltaMs) {
             updateMovement(deltaMs);
         }
         else {
-            tryStartNextMove();
+            tryStartNextMove(now);
         }
     }
 
@@ -582,10 +585,18 @@ function updateMovement(deltaMs) {
     }
 }
 
-function tryStartNextMove() {
+function tryStartNextMove(now) {
     const direction = consumeNextDirection();
     if (!direction) {
         return;
+    }
+
+    if (state.turnLockDirection === direction) {
+        if (now < state.turnLockUntil) {
+            return;
+        }
+
+        state.turnLockDirection = null;
     }
 
     const vector = DIRECTION_VECTORS[direction];
@@ -792,6 +803,18 @@ function onKeyDown(event) {
             return;
         }
 
+        if (!state.player.isMoving && state.player.facing !== direction) {
+            state.player.facing = direction;
+            state.turnLockDirection = direction;
+            state.turnLockUntil = performance.now() + TURN_DELAY_MS;
+
+            if (!state.activeDirections.includes(direction)) {
+                state.activeDirections.push(direction);
+            }
+
+            return;
+        }
+
         if (!state.activeDirections.includes(direction)) {
             state.activeDirections.push(direction);
         }
@@ -824,6 +847,11 @@ function onKeyUp(event) {
         return;
     }
 
+    if (state.turnLockDirection === direction) {
+        state.turnLockDirection = null;
+        state.turnLockUntil = 0;
+    }
+
     const index = state.activeDirections.indexOf(direction);
     if (index !== -1) {
         state.activeDirections.splice(index, 1);
@@ -833,6 +861,8 @@ function onKeyUp(event) {
 function clearInputState() {
     state.activeDirections = [];
     state.queuedDirection = null;
+    state.turnLockDirection = null;
+    state.turnLockUntil = 0;
 }
 
 function handleInteract() {
