@@ -32,7 +32,7 @@ export function createTriggerEngine({ triggers, executeAction, onTriggerConsumed
                 continue;
             }
 
-            const executionResult = executeAction(trigger.action, {
+            const executionResult = executeAction(trigger.actions, {
                 ...context,
                 trigger,
                 eventType,
@@ -91,7 +91,7 @@ function normalizeTriggers(input, logger) {
             return;
         }
 
-        const { id, type, x, y, action } = rawTrigger;
+        const { id, type, x, y, actions } = rawTrigger;
 
         if (typeof id !== "string" || id.trim() === "") {
             logger.warn(`[triggers] Trigger at index ${index} is missing a valid id. Skipping.`);
@@ -113,14 +113,24 @@ function normalizeTriggers(input, logger) {
             return;
         }
 
-        if (!action || typeof action !== "object") {
-            logger.warn(`[triggers] Trigger \"${id}\" is missing an action object. Skipping.`);
+        if (!Array.isArray(actions) || actions.length === 0) {
+            logger.warn(`[triggers] Trigger \"${id}\" is missing an actions array. Skipping.`);
             return;
         }
 
-        if (!SUPPORTED_ACTION_KINDS.has(action.kind)) {
-            logger.warn(`[triggers] Trigger \"${id}\" has unsupported action kind \"${String(action.kind)}\". Skipping.`);
-            return;
+        const normalizedActions = [];
+        for (const action of actions) {
+            if (!action || typeof action !== "object") {
+                logger.warn(`[triggers] Trigger \"${id}\" has an invalid action entry. Skipping.`);
+                return;
+            }
+
+            if (!SUPPORTED_ACTION_KINDS.has(action.kind)) {
+                logger.warn(`[triggers] Trigger \"${id}\" has unsupported action kind \"${String(action.kind)}\". Skipping.`);
+                return;
+            }
+
+            normalizedActions.push({ ...action });
         }
 
         if (rawTrigger.elseAction) {
@@ -145,7 +155,7 @@ function normalizeTriggers(input, logger) {
             x,
             y,
             once: rawTrigger.once === true,
-            action: { ...action },
+            actions: normalizedActions,
             elseAction: rawTrigger.elseAction ? { ...rawTrigger.elseAction } : null
         });
     });

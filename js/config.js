@@ -81,6 +81,7 @@ export const GAME_CONFIG = {
     // - sprite: "assets/sprites/portal.gif" (animated gif)
     // - sprite: { src: "assets/sprites/portal.png", frames: 4, speed: 150 } (spritesheet)
     // - conditions: [{ scope: "items", key: "coin", op: ">=", value: 1 }]
+    // - actions: [{ kind: "playSound", soundKey: "interact" }, { kind: "giveItem", itemKey: "coin", amount: 1 }]
     // - elseAction: { kind: "openModalText", title: "...", text: "..." }
     // - makePassable action can remove collision and optionally swap to passableSprite
     triggers: [
@@ -91,22 +92,17 @@ export const GAME_CONFIG = {
             y: 2,
             once: true,
             sprite: "assets/sprites/coin.gif",
-            action: {
-                kind: "giveItem",
-                itemKey: "coin",
-                amount: 1,
-            },
-        },
-        {
-            id: "coin_1_sound",
-            type: "onEnterCell",
-            x: 1,
-            y: 2,
-            once: true,
-            action: {
-                kind: "playSound",
-                soundKey: "interact",
-            },
+            actions: [
+                {
+                    kind: "playSound",
+                    soundKey: "interact",
+                },
+                {
+                    kind: "giveItem",
+                    itemKey: "coin",
+                    amount: 1,
+                },
+            ],
         },
         {
             id: "picked_up_coin",
@@ -115,11 +111,13 @@ export const GAME_CONFIG = {
             y: 3,
             once: true,
             sprite: "assets/sprites/question.png",
-            action: {
-                kind: "openModalText",
-                title: "Wow, did you see that!",
-                text: "You picked up a coin! It was defined as a trigger in the config.js, try to find it.",
-            }
+            actions: [
+                {
+                    kind: "openModalText",
+                    title: "Wow, did you see that!",
+                    text: "You picked up a coin! It was defined as a trigger in the config.js, try to find it.",
+                }
+            ]
         },
         {
             id: "coin_sign",
@@ -131,11 +129,13 @@ export const GAME_CONFIG = {
             conditions: [
                 { scope: "items", key: "coin", op: ">=", value: 2 }
             ],
-            action: {
-                kind: "openModalHtml",
-                title: "Coin Sign",
-                contentKey: "coin_sign"
-            },
+            actions: [
+                {
+                    kind: "openModalHtml",
+                    title: "Coin Sign",
+                    contentKey: "coin_sign"
+                }
+            ],
             elseAction: {
                 kind: "openModalText",
                 title: "Oh no!!!",
@@ -149,22 +149,17 @@ export const GAME_CONFIG = {
             y: 6,
             once: true,
             sprite: "assets/sprites/coin.gif",
-            action: {
-                kind: "giveItem",
-                itemKey: "coin",
-                amount: 1,
-            },
-        },
-        {
-            id: "coin_2_sound",
-            type: "onEnterCell",
-            x: 1,
-            y: 6,
-            once: true,
-            action: {
-                kind: "playSound",
-                soundKey: "interact",
-            },
+            actions: [
+                {
+                    kind: "playSound",
+                    soundKey: "interact",
+                },
+                {
+                    kind: "giveItem",
+                    itemKey: "coin",
+                    amount: 1,
+                },
+            ],
         },
         {
             id: "key_pink",
@@ -172,35 +167,23 @@ export const GAME_CONFIG = {
             x: 1,
             y: 3,
             once: true,
-            action: {
-                kind: "giveItem",
-                itemKey: "key_pink",
-                amount: 1,
-            },
-        },
-        {
-            id: "key_pink_sound",
-            type: "onInteractCell",
-            x: 1,
-            y: 3,
-            once: true,
-            action: {
-                kind: "playSound",
-                soundKey: "interact",
-            },
-        },
-        {
-            id: "key_pink_text",
-            type: "onInteractCell",
-            x: 1,
-            y: 3,
-            once: true,
             sprite: "assets/sprites/question.png",
-            action: {
-                kind: "openModalText",
-                title: "Good catch!",
-                text: "You found the super secret pink key! Now you can open the door with it."
-            },
+            actions: [
+                {
+                    kind: "playSound",
+                    soundKey: "interact",
+                },
+                {
+                    kind: "giveItem",
+                    itemKey: "key_pink",
+                    amount: 1,
+                },
+                {
+                    kind: "openModalText",
+                    title: "Good catch!",
+                    text: "You found the super secret pink key! Now you can open the door with it."
+                },
+            ],
         },
         {
             id: "door_pink",
@@ -213,10 +196,17 @@ export const GAME_CONFIG = {
             conditions: [
                 { scope: "items", key: "key_pink", op: ">=", value: 1 }
             ],
-            action: {
-                kind: "makePassable",
-                passableSprite: "assets/sprites/door_pink_open.png",
-            },
+            actions: [
+                {
+                    kind: "makePassable",
+                    passableSprite: "assets/sprites/door_pink_open.png",
+                },
+                {
+                    kind: "openModalText",
+                    title: "You opened the door!",
+                    text: "You used the pink key to open this door. Congrats on finding the secret pink key trigger and using it correctly in the conditions for this door trigger!"
+                }
+            ],
             elseAction: {
                 kind: "openModalText",
                 title: "Locked!",
@@ -233,11 +223,13 @@ export const GAME_CONFIG = {
             conditions: [
                 { scope: "stats", key: "health", op: "<=", value: 1 }
             ],
-            action: {
-                kind: "openModalHtml",
-                title: "Village Sign",
-                contentKey: "village_sign"
-            },
+            actions: [
+                {
+                    kind: "openModalHtml",
+                    title: "Village Sign",
+                    contentKey: "village_sign"
+                }
+            ],
             elseAction: {
                 kind: "openModalText",
                 title: "Village Sign",
@@ -250,32 +242,13 @@ export const GAME_CONFIG = {
             x: 6,
             y: 6,
             sprite: "assets/sprites/question.png",
-            action: {
-                kind: "openModalVideo",
-                title: "Intro Video",
-                contentKey: "intro_clip"
-            }
-        },
-        {
-            id: "portal_left_sound",
-            type: "onEnterCell",
-            x: 8,
-            y: 3,
-            action: {
-                kind: "playSound",
-                soundKey: "teleport"
-            }
-        },
-        {
-            id: "portal_left_damage",
-            type: "onEnterCell",
-            x: 8,
-            y: 3,
-            action: {
-                kind: "changeStat",
-                statKey: "health",
-                amount: -1,
-            }
+            actions: [
+                {
+                    kind: "openModalVideo",
+                    title: "Intro Video",
+                    contentKey: "intro_clip"
+                }
+            ]
         },
         {
             id: "portal_left_jump",
@@ -287,39 +260,46 @@ export const GAME_CONFIG = {
                 frames: 4,
                 speed: 150,
             },
-            action: {
-                kind: "teleport",
-                targetX: 13,
-                targetY: 3,
-                sfx: "teleport",
-                sprite: {
-                    src: "assets/sprites/portal_action.png",
-                    frames: 4,
-                    speed: 150,
+            actions: [
+                {
+                    kind: "playSound",
+                    soundKey: "teleport"
                 },
-            }
-        },
-        {
-            id: "portal_right_sound",
-            type: "onEnterCell",
-            x: 12,
-            y: 3,
-            action: {
-                kind: "playSound",
-                soundKey: "teleport"
-            }
+                {
+                    kind: "changeStat",
+                    statKey: "health",
+                    amount: -1,
+                },
+                {
+                    kind: "teleport",
+                    targetX: 13,
+                    targetY: 3,
+                    sfx: "teleport",
+                    sprite: {
+                        src: "assets/sprites/portal_action.png",
+                        frames: 4,
+                        speed: 150,
+                    },
+                }
+            ]
         },
         {
             id: "portal_right_jump",
             type: "onEnterCell",
             x: 12,
             y: 3,
-            action: {
-                kind: "teleport",
-                targetX: 7,
-                targetY: 3,
-                sfx: "teleport"
-            }
+            actions: [
+                {
+                    kind: "playSound",
+                    soundKey: "teleport"
+                },
+                {
+                    kind: "teleport",
+                    targetX: 7,
+                    targetY: 3,
+                    sfx: "teleport"
+                }
+            ]
         },
     ]
 };

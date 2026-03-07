@@ -789,7 +789,13 @@ function updateInfoBox() {
     const isFacingInsideMap = isInsideMap(facingTile.x, facingTile.y);
     const isFacingBlocked = !isFacingInsideMap || isSolidTile(facingTile.x, facingTile.y);
     const interactableTriggers = getAvailableInteractTriggersAt(facingTile.x, facingTile.y);
-    const actionKinds = Array.from(new Set(interactableTriggers.map((trigger) => trigger.action.kind)));
+    const actionKinds = Array.from(new Set(interactableTriggers.flatMap((trigger) => {
+        if (!Array.isArray(trigger.actions)) {
+            return [];
+        }
+
+        return trigger.actions.map((action) => action.kind);
+    })));
 
     const facingStatus = isFacingInsideMap
         ? `(${facingTile.x}, ${facingTile.y})`
@@ -896,7 +902,7 @@ function getAvailableInteractTriggersAt(tileX, tileY) {
             return false;
         }
 
-        if (!trigger.action || typeof trigger.action.kind !== "string") {
+        if (!Array.isArray(trigger.actions) || trigger.actions.length === 0) {
             return false;
         }
 
@@ -1074,50 +1080,63 @@ function runDeferredEnterTrigger() {
     state.triggerEngine.run("onEnterCell", x, y, { source: "deferred" });
 }
 
-function executeTriggerAction(action, context = {}) {
-    const resolution = resolveTriggerAction(action, context.trigger);
-    const resolvedAction = resolution?.action;
+function executeTriggerAction(actions, context = {}) {
+    const resolution = resolveTriggerActions(actions, context.trigger);
+    const resolvedActions = resolution?.actions;
 
-    if (!resolvedAction || typeof resolvedAction !== "object") {
+    if (!Array.isArray(resolvedActions) || resolvedActions.length === 0) {
         return false;
     }
 
-    if (!resolvedAction.kind || typeof resolvedAction.kind !== "string") {
-        console.warn("[triggers] Invalid action object.");
-        return false;
+    let didAnyActionSucceed = false;
+
+    for (const action of resolvedActions) {
+        if (!action || typeof action !== "object" || typeof action.kind !== "string") {
+            console.warn("[triggers] Invalid action object.");
+            continue;
+        }
+
+        const didSucceed = executeSingleTriggerAction(action, context);
+        if (didSucceed !== false) {
+            didAnyActionSucceed = true;
+        }
     }
 
-    switch (resolvedAction.kind) {
+    return formatTriggerExecutionResult(didAnyActionSucceed, resolution.shouldConsume);
+}
+
+function executeSingleTriggerAction(action, context = {}) {
+    switch (action.kind) {
         case "playSound":
-            return formatTriggerExecutionResult(executePlaySoundAction(resolvedAction), resolution.shouldConsume);
+            return executePlaySoundAction(action);
         case "openModalText":
-            return formatTriggerExecutionResult(executeOpenTextAction(resolvedAction), resolution.shouldConsume);
+            return executeOpenTextAction(action);
         case "openModalVideo":
-            return formatTriggerExecutionResult(executeOpenVideoAction(resolvedAction), resolution.shouldConsume);
+            return executeOpenVideoAction(action);
         case "openModalHtml":
-            return formatTriggerExecutionResult(executeOpenHtmlAction(resolvedAction), resolution.shouldConsume);
+            return executeOpenHtmlAction(action);
         case "teleport":
-            return formatTriggerExecutionResult(executeTeleportAction(resolvedAction), resolution.shouldConsume);
+            return executeTeleportAction(action);
         case "makePassable":
-            return formatTriggerExecutionResult(executeMakePassableAction(resolvedAction, context), resolution.shouldConsume);
+            return executeMakePassableAction(action, context);
         case "giveItem":
-            return formatTriggerExecutionResult(executeGiveItemAction(resolvedAction), resolution.shouldConsume);
+            return executeGiveItemAction(action);
         case "removeItem":
-            return formatTriggerExecutionResult(executeRemoveItemAction(resolvedAction), resolution.shouldConsume);
+            return executeRemoveItemAction(action);
         case "changeStat":
-            return formatTriggerExecutionResult(executeChangeStatAction(resolvedAction), resolution.shouldConsume);
+            return executeChangeStatAction(action);
         case "setStat":
-            return formatTriggerExecutionResult(executeSetStatAction(resolvedAction), resolution.shouldConsume);
+            return executeSetStatAction(action);
         default:
-            console.warn(`[triggers] Unsupported action kind: ${String(resolvedAction.kind)}`);
+            console.warn(`[triggers] Unsupported action kind: ${String(action.kind)}`);
             return false;
     }
 }
 
-function resolveTriggerAction(action, trigger) {
+function resolveTriggerActions(actions, trigger) {
     if (!trigger || typeof trigger !== "object") {
         return {
-            action,
+            actions,
             shouldConsume: true
         };
     }
@@ -1125,7 +1144,7 @@ function resolveTriggerAction(action, trigger) {
     const conditions = Array.isArray(trigger.conditions) ? trigger.conditions : null;
     if (!conditions || conditions.length === 0) {
         return {
-            action: trigger.action,
+            actions: trigger.actions,
             shouldConsume: true
         };
     }
@@ -1133,14 +1152,14 @@ function resolveTriggerAction(action, trigger) {
     const didPass = evaluateTriggerConditions(conditions);
     if (didPass) {
         return {
-            action: trigger.action,
+            actions: trigger.actions,
             shouldConsume: true
         };
     }
 
     if (trigger.elseAction && typeof trigger.elseAction === "object") {
         return {
-            action: trigger.elseAction,
+            actions: [trigger.elseAction],
             shouldConsume: false
         };
     }

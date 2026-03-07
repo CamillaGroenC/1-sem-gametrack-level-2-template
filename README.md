@@ -131,7 +131,7 @@ Use:
 Triggers can:
 
 - check these values with `conditions`
-- run `action` if the conditions pass
+- run `actions` if the conditions pass
 - run `elseAction` if they fail
 - change values with `giveItem`, `removeItem`, `changeStat`, and `setStat`
 
@@ -179,7 +179,7 @@ Each trigger needs:
 - `type`
 - `x`
 - `y`
-- `action`
+- `actions`
 
 Optional keys:
 
@@ -199,13 +199,17 @@ Basic example:
     y: 2,
     once: true,
     sprite: "assets/sprites/coin.gif",
-    action: {
-        kind: "giveItem",
-        itemKey: "coin",
-        amount: 1
-    }
+    actions: [
+        {
+            kind: "giveItem",
+            itemKey: "coin",
+            amount: 1
+        }
+    ]
 }
 ```
+
+If you want multiple things to happen from one trigger, put them in the array in the order they should run.
 
 Condition example:
 
@@ -219,10 +223,12 @@ Condition example:
     conditions: [
         { scope: "items", key: "coin", op: ">=", value: 1 }
     ],
-    action: {
-        kind: "openModalHtml",
-        contentKey: "village_sign"
-    },
+    actions: [
+        {
+            kind: "openModalHtml",
+            contentKey: "village_sign"
+        }
+    ],
     elseAction: {
         kind: "openModalText",
         title: "Village Sign",
@@ -269,22 +275,26 @@ Example:
     y: 3,
     isSolid: true,
     sprite: "assets/sprites/sign.png",
-    action: {
-        kind: "openModalHtml",
-        title: "Village Sign",
-        contentKey: "village_sign"
-    }
+    actions: [
+        {
+            kind: "openModalHtml",
+            title: "Village Sign",
+            contentKey: "village_sign"
+        }
+    ]
 }
 ```
 
 ### Trigger action types
+
+Action objects go inside the trigger `actions` array.
 
 #### `playSound`
 
 Plays a sound by key from `sounds`.
 
 ```js
-action: {
+{
     kind: "playSound",
     soundKey: "teleport"
 }
@@ -295,7 +305,7 @@ action: {
 Opens a simple text modal.
 
 ```js
-action: {
+{
     kind: "openModalText",
     title: "Hint",
     text: "Try using the switch near the door."
@@ -309,7 +319,7 @@ Opens a modal with a local video file. You can provide values directly or reuse 
 Direct example:
 
 ```js
-action: {
+{
     kind: "openModalVideo",
     title: "Intro",
     src: "assets/video/intro.mp4",
@@ -321,7 +331,7 @@ action: {
 Reusable content example:
 
 ```js
-action: {
+{
     kind: "openModalVideo",
     contentKey: "intro_clip"
 }
@@ -332,7 +342,7 @@ action: {
 Opens styled HTML content from [content/modals.js](C:/Code/1sem-spillinje/1-sem-gametrack-level-2-template/content/modals.js).
 
 ```js
-action: {
+{
     kind: "openModalHtml",
     title: "Notice Board",
     contentKey: "village_sign"
@@ -352,7 +362,7 @@ Use this for:
 Moves the player to a new tile if the target is inside the map and not solid.
 
 ```js
-action: {
+{
     kind: "teleport",
     targetX: 13,
     targetY: 3,
@@ -375,7 +385,7 @@ Makes a trigger-based object passable by removing its collision and changing its
 Basic example:
 
 ```js
-action: {
+{
     kind: "makePassable"
 }
 ```
@@ -383,7 +393,7 @@ action: {
 Target another trigger by id:
 
 ```js
-action: {
+{
     kind: "makePassable",
     triggerId: "door_pink"
 }
@@ -392,7 +402,7 @@ action: {
 Show a different sprite after becoming passable:
 
 ```js
-action: {
+{
     kind: "makePassable",
     passableSprite: "assets/sprites/door_open.png"
 }
@@ -409,7 +419,7 @@ Notes:
 Adds to an item count in `playerState.items`.
 
 ```js
-action: {
+{
     kind: "giveItem",
     itemKey: "coin",
     amount: 1
@@ -421,7 +431,7 @@ action: {
 Removes from an item count in `playerState.items`.
 
 ```js
-action: {
+{
     kind: "removeItem",
     itemKey: "coin",
     amount: 1
@@ -433,7 +443,7 @@ action: {
 Adds or subtracts from a value in `playerState.stats`.
 
 ```js
-action: {
+{
     kind: "changeStat",
     statKey: "health",
     amount: -1
@@ -445,7 +455,7 @@ action: {
 Sets a value directly in `playerState.stats`.
 
 ```js
-action: {
+{
     kind: "setStat",
     statKey: "health",
     value: 5
@@ -523,7 +533,7 @@ Teleport actions can also have an optional `sprite` key. This effect is drawn on
 Example:
 
 ```js
-action: {
+{
     kind: "teleport",
     targetX: 20,
     targetY: 8,
@@ -543,7 +553,7 @@ Notes:
 
 ## Condition rules
 
-Conditions are checked in order. All conditions must pass for the trigger `action` to run.
+Conditions are checked in order. All conditions must pass for the trigger `actions` to run.
 
 Example:
 
@@ -601,7 +611,7 @@ intro_clip: {
 }
 ```
 
-You can also set modal size per action or per content entry:
+You can also set modal size per action object or per content entry:
 
 ```js
 maxWidth: "900px",
@@ -654,11 +664,13 @@ You can also play sounds manually through triggers with `playSound`.
     y: 6,
     isSolid: true,
     sprite: "assets/sprites/sign.png",
-    action: {
-        kind: "openModalText",
-        title: "Forest Path",
-        text: "North: Village  South: River"
-    }
+    actions: [
+        {
+            kind: "openModalText",
+            title: "Forest Path",
+            text: "North: Village  South: River"
+        }
+    ]
 }
 ```
 
@@ -672,11 +684,17 @@ You can also play sounds manually through triggers with `playSound`.
     y: 9,
     once: true,
     sprite: "assets/sprites/coin.gif",
-    action: {
-        kind: "giveItem",
-        itemKey: "coin",
-        amount: 1
-    }
+    actions: [
+        {
+            kind: "playSound",
+            soundKey: "interact"
+        },
+        {
+            kind: "giveItem",
+            itemKey: "coin",
+            amount: 1
+        }
+    ]
 }
 ```
 
@@ -693,17 +711,23 @@ You can also play sounds manually through triggers with `playSound`.
         frames: 4,
         speed: 150
     },
-    action: {
-        kind: "teleport",
-        targetX: 20,
-        targetY: 12,
-        sfx: "teleport",
-        sprite: {
-            src: "assets/sprites/portal_action.png",
-            frames: 4,
-            speed: 150
+    actions: [
+        {
+            kind: "playSound",
+            soundKey: "teleport"
+        },
+        {
+            kind: "teleport",
+            targetX: 20,
+            targetY: 12,
+            sfx: "teleport",
+            sprite: {
+                src: "assets/sprites/portal_action.png",
+                frames: 4,
+                speed: 150
+            }
         }
-    }
+    ]
 }
 ```
 
@@ -716,10 +740,12 @@ You can also play sounds manually through triggers with `playSound`.
     x: 18,
     y: 10,
     isSolid: true,
-    action: {
-        kind: "openModalHtml",
-        contentKey: "museum_terminal"
-    }
+    actions: [
+        {
+            kind: "openModalHtml",
+            contentKey: "museum_terminal"
+        }
+    ]
 }
 ```
 
