@@ -102,6 +102,7 @@ export const GAME_CONFIG = {
     // - sprite: "assets/sprites/your_image.png" (draws a 32x32 image on the tile)
     // - sprite: "assets/sprites/portal.gif" (animated gif)
     // - sprite: { src: "assets/sprites/portal.png", frames: 4, speed: 150 } (spritesheet)
+    // - drawAbovePlayer: true (draws the trigger sprite above the player, but below map.overlaySrc)
     // - conditions: [{ scope: "items", key: "coin", op: ">=", value: 1 }]
     // - actions: [{ kind: "playSound", soundKey: "interact" }, { kind: "giveItem", itemKey: "coin", amount: 1 }]
     // - elseAction: { kind: "openModalText", title: "...", text: "..." }
@@ -279,6 +280,7 @@ export const GAME_CONFIG = {
             x: 6,
             y: 6,
             sprite: "assets/sprites/question.png",
+            drawAbovePlayer: true,
             actions: [
                 {
                     kind: "openModalVideo",

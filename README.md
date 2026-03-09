@@ -192,6 +192,7 @@ Optional keys:
 - `once`
 - `isSolid`
 - `sprite`
+- `drawAbovePlayer`
 - `conditions`
 - `elseAction`
 

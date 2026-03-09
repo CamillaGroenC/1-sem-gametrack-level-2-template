@@ -34,6 +34,7 @@ const refs = {
     mapLayer: document.getElementById("map-layer"),
     mapOverlayLayer: document.getElementById("map-overlay-layer"),
     triggerLayer: document.getElementById("trigger-layer"),
+    triggerTopLayer: document.getElementById("trigger-top-layer"),
     playerSprite: document.getElementById("player-sprite"),
     teleportEffect: document.getElementById("teleport-effect"),
     debugToggle: document.getElementById("debug-toggle"),
@@ -469,6 +470,8 @@ function setupWorldDimensions() {
     refs.mapOverlayLayer.style.height = `${mapHeightPx}px`;
     refs.triggerLayer.style.width = `${mapWidthPx}px`;
     refs.triggerLayer.style.height = `${mapHeightPx}px`;
+    refs.triggerTopLayer.style.width = `${mapWidthPx}px`;
+    refs.triggerTopLayer.style.height = `${mapHeightPx}px`;
 }
 
 async function loadOptionalMapOverlay() {
@@ -511,6 +514,7 @@ function setupTeleportEffect() {
 
 function buildTriggerSprites() {
     refs.triggerLayer.innerHTML = "";
+    refs.triggerTopLayer.innerHTML = "";
     state.triggerSprites.clear();
     state.preservedTriggerSpriteIds.clear();
 
@@ -654,7 +658,7 @@ function setTriggerSprite(triggerId, spriteValue) {
     }
 
     const sprite = createTriggerSpriteElement(trigger, spriteConfig);
-    refs.triggerLayer.appendChild(sprite);
+    getTriggerSpriteLayerElement(trigger).appendChild(sprite);
     state.triggerSprites.set(triggerId, {
         element: sprite,
         frames: spriteConfig.frames,
@@ -665,6 +669,14 @@ function setTriggerSprite(triggerId, spriteValue) {
 
     preloadSpriteImage(spriteConfig.src, triggerId);
     return true;
+}
+
+function getTriggerSpriteLayerElement(trigger) {
+    if (trigger?.drawAbovePlayer === true) {
+        return refs.triggerTopLayer;
+    }
+
+    return refs.triggerLayer;
 }
 
 function createTriggerSpriteElement(trigger, spriteConfig) {

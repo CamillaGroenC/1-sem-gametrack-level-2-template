@@ -101,16 +101,20 @@ code {
     z-index: 0;
 }
 
-.map-overlay-layer {
-    z-index: 3;
-}
-
-.trigger-layer {
+.trigger-layer,
+.trigger-top-layer {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1;
     pointer-events: none;
+}
+
+.trigger-layer {
+    z-index: 1;
+}
+
+.trigger-top-layer {
+    z-index: 3;
 }
 
 .trigger-sprite {
@@ -134,11 +138,15 @@ code {
     image-rendering: crisp-edges;
 }
 
+.map-overlay-layer {
+    z-index: 4;
+}
+
 .teleport-effect {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 4;
+    z-index: 5;
     background-repeat: no-repeat;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
